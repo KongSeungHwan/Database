@@ -246,4 +246,3 @@ SELECT * FROM SAL_DDL;
 
 
 
-
