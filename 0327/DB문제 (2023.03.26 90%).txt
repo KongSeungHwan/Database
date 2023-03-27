@@ -1,0 +1,155 @@
+<JOIN함수 예제>
+-- 1. DEPT 테이블과 EMP 테이블에서 사번, 사원명, 부서코드, 부서명을 검색하시오. (사원명 오름차순 정렬)
+
+-- 2. DEPT 테이블과 EMP 테이블에서 사번, 사원명, 급여, 부서명을 검색하시오. 단, 급여가 2000 이상인 사원에 대하여 급여기준으로 내림차순 정렬할 것.
+
+-- 3. DEPT 테이블과 EMP 테이블에서 사번, 사원명, 업무, 급여, 부서명을 검색하시오. 단, 업무가 MANAGER이며 급여가 2500 이상인 사원에 대해, 사번을 기준으로 오름차순 정렬할 것.
+
+-- 4. EMP 테이블과 SALGRADE 테이블에서 사번, 사원명, 급여, 등급을 검색하시오. 단, 등급은 급여가  LOSAL과 HISAL 범위에 포함되고 등급이 4이며 급여를 기준으로 내림차순 정렬할 것.
+
+-- 5. DEPT 테이블, EMP 테이블, SALGRADE 테이블에서 사번, 사원명, 부서명, 급여, 등급을 검색하시오. 단, 등급은 급여가 LOSAL과 HISAL 범위에 포함되며 등급을 기준으로 내림차순 정렬할 것.
+
+-- 6. EMP 테이블에서 사원명과 해당 사원의 관리자명을 검색하시오.
+
+-- 7. EMP 테이블에서 사원명과 해당 사원의 관리자명, 해당 사원의 관리자의 관리자명을 검색하시오.
+
+-- 8. 7번 결과에서 상위 관리자가 없는 모든 사원의 이름도 사원명에 출력되도록 수정하시오.
+
+ 
+
+ 
+
+<서브쿼리 예제>
+
+-- 1. EMP 테이블에서 BLAKE보다 급여가 많은 사원들의 사번, 이름, 급여를 검색하시오.
+
+-- 2. EMP 테이블에서 MILLER보다 늦게 입사한 사원의 사번, 이름, 입사일을 검색하시오.
+
+-- 3. EMP 테이블에서 사원 전체 평균 급여보다 급여가 많은 사원들의 사번, 이름, 급여를 검색하시오.
+
+-- 4. EMP 테이블에서 CLARK와 같은 부서이며, 사번이 7698인 직원의 급여보다 많은 급여를 받는 사원들의 사번, 이름, 급여를 검색하시오.
+
+1
+SELECT DEPT.DEPTNO,EMPNO,ENAME,DNAME
+FROM DEPT JOIN EMP ON DEPT.DEPTNO=EMP.DEPTNO 
+ORDER BY ENAME ASC;
+2
+SELECT EMPNO,ENAME,SAL,DNAME
+FROM EMP JOIN DEPT ON DEPT.DEPTNO=EMP.DEPTNO
+WHERE SAL>=2000
+ORDER BY SAL DESC;
+3
+SELECT EMPNO,ENAME,JOB,SAL,DNAME
+FROM DEPT JOIN EMP ON EMP.DEPTNO=DEPT.DEPTNO
+WHERE JOB='MANAGER' AND SAL>=2500
+ORDER BY EMPNO ASC;
+4
+SELECT EMPNO,ENAME,SAL,GRADE
+FROM EMP JOIN SALGRADE ON SAL BETWEEN LOSAL AND HISAL 
+WHERE GRADE=4
+ORDER BY SAL DESC;
+5
+SELECT EMPNO,ENAME,DNAME,SAL,GRADE
+FROM EMP JOIN DEPT ON EMP.DEPTNO=DEPT.DEPTNO JOIN SALGRADE ON SAL BETWEEN LOSAL AND HISAL
+ORDER BY GRADE DESC;
+
+
+
+6
+SELECT EA.ENAME 이름,NVL(EB.ENAME,'읎어') 상사
+FROM EMP EA FULL OUTER JOIN EMP EB ON EA.MGR=EB.EMPNO
+WHERE EA.ENAME IS NOT NULL;
+
+7
+SELECT EA.ENAME, EB.ENAME 상사,EC.ENAME 다음_상사 
+FROM EMP EA JOIN EMP EB ON EA.MGR=EB.EMPNO JOIN EMP EC ON EB.MGR=EC.EMPNO;
+
+8
+SELECT EA.ENAME 사원, NVL(EB.ENAME,'없음') 상사,NVL(EC.ENAME,'없음') 다음_상사
+FROM EMP EA LEFT JOIN EMP EB ON EA.MGR=EB.EMPNO LEFT JOIN EMP EC ON EB.MGR=EC.EMPNO;
+
+
+
+
+
+SUB QUERY 
+
+1
+SELECT EMPNO,ENAME,SAL
+FROM EMP
+WHERE SAL>(SELECT SAL
+            FROM EMP
+            WHERE ENAME='BLAKE')
+
+2
+SELECT EMPNO,ENAME,HIREDATE
+FROM EMP
+WHERE (SELECT HIREDATE
+        FROM EMP
+        WHERE ENAME='MILLER')<HIREDATE;
+3
+SELECT EMPNO,ENAME,SAL
+FROM EMP
+WHERE (SELECT AVG(SAL)
+        FROM EMP)<SAL;
+4
+SELECT EMPNO, ENAME,SAL
+FROM EMP
+WHERE (SELECT SAL
+        FROM EMP
+        WHERE EMPNO=7698)<SAL;
+
+
+5
+SELECT EMPNO,ENAME,JOB
+FROM EMP
+WHERE EMPNO=7844;
+
+6
+SELECT EMPNO,ENAME,JOB
+FROM EMP
+WHERE JOB=(SELECT JOB
+            FROM EMP
+            WHERE EMPNO=7844);
+
+7
+SELECT EMPNO,ENAME,JOB
+FROM EMP
+WHERE JOB=(SELECT JOB
+            FROM EMP
+            WHERE EMPNO=7521) AND SAL>(SELECT SAL
+                                        FROM EMP
+                                        WHERE EMPNO = 7900);
+8
+SELECT MIN(SAL)
+FROM EMP;
+
+9 
+SELECT DEPTNO 부서번호 ,MIN(SAL) 최소값
+FROM EMP
+GROUP BY DEPTNO HAVING MIN(SAL) > (SELECT MIN(SAL)
+                            FROM EMP
+                            WHERE DEPTNO=30);
+10
+SELECT B.DEPTNO 부서번호,B.DNAME 부서명 
+FROM EMP A JOIN DEPT B ON A.DEPTNO=B.DEPTNO
+GROUP BY B.DEPTNO,B.DNAME HAVING (SELECT COUNT(*)
+                                FROM EMP
+                                WHERE B.DEPTNO=DEPTNO AND JOB='CLERK')>=2;
+
+11
+SELECT B.DEPTNO 부서번호,B.DNAME 부서명 
+FROM EMP A JOIN DEPT B ON A.DEPTNO=B.DEPTNO
+GROUP BY B.DEPTNO,B.DNAME HAVING (SELECT COUNT(*)
+                                    FROM EMP
+                                    WHERE DEPTNO=B.DEPTNO AND JOB='CLERK')>=1;
+
+12
+SELECT B.DEPTNO,DNAME,EMPNO,ENAME,SAL
+FROM EMP A JOIN DEPT B ON A.DEPTNO = B.DEPTNO
+WHERE SAL=(SELECT MIN(SAL)
+            FROM EMP
+            WHERE DEPTNO=B.DEPTNO);
+13
+
+

@@ -1,0 +1,263 @@
+Structure Query Language
+SQL 종류
+
+DDL(Data Definition Language)
+CREATE
+ALTER
+DROP
+TRUNCATE(DROP 기능+ 시스템 자원 반환)
+
+DML(Data Manipulation Language)
+SELECT
+INSERT
+DELETE
+UPDATE
+
+DCL(Data Control Language)
+GRANT
+REVOKE
+
+TCL(Transaction Control Language)
+COMMIT
+ROLLBACK
+
+
+CREATE 문 사용법
+
+CREATE TABLE AS (SELECT 문)
+
+SELECT문으로 찾은 또 다른 가상 테이블, 뷰를 만들어 추가함
+
+CREATE TABLE 테이블명(
+칼럼명 자료형 제약조건...
+);
+OR
+CREATE TABLE 테이블명(
+칼럼명 자료형 제약조건...
+CONSTRAINT 또 다른 제약조건
+REFERENCES 테이블명(칼럼명) ON DELETE CASCADE << 해당 칼럼을 참조(외래키)하는 엔티티 모두 삭제
+); << 뒷 부분에 더 추가 가능
+
+제약 조건
+PRIMARY KEY
+FOREIGN KEY
+NOT NULL
+UNIQUE
+
+
+
+ALTER TABLE 테이블명
+ADD 칼럼명
+ADD CONSTRAINT (새로 추가할 칼럼명) 
+
++)REFERENCES (참조 테이블명)( (참조 칼럼명) ) (ON DELETE CASCADE)/(ON UPDATE CASCADE);
+
+
+ALTER TABLE
+MODIFY (칼럼명) (바꿀 자료형)
+RENAME COLUMN (기존 칼럼명) TO (갱신할 칼럼명)
+DROP (칼럼명)
+
+
+DML(Data Manipulation Language)
+
+SELECT
+
+SELECT (DISTINCT) <<중복 제거   찾을 칼럼1,찾을 칼럼2... or *(전체 칼럼)
+FROM 테이블명 <<(만약에 다른 DB랑 겹친다면 DB명.TABLE명 해주면 된다.)
+(WHERE 절)
+(GROUP BY 절)
+(ORDER BY 절)
+
+
+찾을 칼럼에 들어갈 요소들
+함수(리턴 값: 숫자)
+COUNT(*) 엔티티 수
+MAX(칼럼명) 최댓값
+MIN(칼럼명) 최솟값
+SUM(칼럼명) 합
+AVG(칼럼명) 평균
+
+*** TRUNC(칼럼명) TIME, NUMBER 등 특정 자료형을 자를 때 사용하는 함수 드럽게 많다
+NVL(TO_자료형(칼럼명), 대체 값) NULL인 값 변환
+NVL2(칼럼명, 값1, 값2) 칼럼이 NULL이면 값1적용 NULL이 아닐경우 값2를 적용
+
+
+
++)별칭 (칼럼명) AS (칼럼 대체명) << AS 생략 가능
+*가독성
+
+CASE 찾을 요소란 또는 WHERE 절의 칼럼 값 란에 표기 가능 
+
+CASE
+WHEN 조건 THEN  (실행문) 또는 (칼럼 값) 
+WHEN 조건 THEN  (실행문) 또는 (칼럼 값)
+WHEN 조건 THEN  (실행문) 또는 (칼럼 값) 
+ELSE  (실행문) 또는 (칼럼 값)   >>위의 조건 이외의 범위 모두 적용
+END  (실행문) 또는 (칼럼 값)  >> 마지막 요소 적용
+(when 절이 첫번째 true일 경우만 적용하고 나온다.)
+
+
+
+ROLLUP***
+
+CUBE***
+
+PIVOT()***
+
+LISTAGG(칼럼 값,구분자)
+구분자 ex) ('/') , (' ,')..... 
+
+
+
+
+고정 입력
+SYSDATE 실행시점의 시간이 입력된다.
+
+
+
+FROM에 붙는 절
+
+테이블명1 CROSS JOIN 테이블명2
+
+
+매칭 전부 다 시킴
+TABLE1          TABLE2
+col1              col2 
+1	        a
+2                  b
+3                  c
+
+
+CROSS JOIN한 테이블! 카디널 프로덕트 n대m 대응 즉 엔티티 개수는 n*m
+
+INNER JOIN한 테이블! 교집합 (디폴트) 그냥 조인으로 써도 된다.
+OUTER JOIN
+	LEFT (OUTER) JOIN 좌측 테이블에만 포함되어있는 엔티티는 오른쪽 테이블에 매칭되면 붙여서 표기하고, 매칭되지 않으면 null로 처리함 
+	RIGHT (OUTER) JOIN 우측 테이블에만 포함되어있는 엔티티는 왼쪽 테이블에 매칭되면 붙여서 표기하고, 매칭되지 않으면 null로 처리함 
+FULL OUTER JOIN 합집합 개념
+	위의  LEFT OUTER JOIN, RIGHT OUTER JOIN 모두 합치되 중복되는 데이터는 제거 함
+
+SUB QUERY 결과가 반드시 단일! >> (SELECT문)
+
+기본
+SELECT 찾을 칼럼,....,(SELECT 문)
+FROM 테이블명
+WHERE절
+(GROUP BY 절)
+(ORDER BY 절)
+
+
+
+WHERE 절에 서브쿼리로 들어가는 경우
+리턴 조건
+
+ALL(SELECT문) 
+모든 값에 만족하는 조건
+
+ANY(SELECT문)
+하나의 값이라도 만족하는 조건
+
+EXIST(SELECT문)
+존재 여부 리턴
+
+NOT EXIST(SELECT문)
+EXIST의 부정
+
+
+FROM 절  뒤에 붙는 절
+
+WHERE 절
+
+
+ORDER BY 칼럼명 오름차순 ASC/내림차순 DESC (디폴트는 ASC!)
+
+
+GROUP BY 칼럼명  칼럼 값에 따라 그룹을 나누는 절
+조건부 절- HAVING 조건 (그룹의 WHERE 절이라고 보면 될 듯 하다..!)
+		 IS NULL (NULL값이면 포함)
+
+같이 쓴다면 순서는 GROUP BY, ORDER BY 순으로 써야 한다.
+
+
+
+
+
+
+
+
+INSERT
+
+INSERT INTO 테이블명 (칼럼명1,칼럼명2....) <생략 하면 전부 순서 맞춰서 기입해줘야 함
+VALUES(값1,값2,값3...)
+
+
+매칭 된다!
+칼럼명1=값1
+.
+.
+.
+
+다른 방법(복합)
+
+INSERT ALL
+	WHEN 조건 THEN
+	INTO절(추가 실행문)
+	WHEN 조건 THEN
+	INTO절(추가 실행문)
+	ELSE
+	INTO절(추가 실행문)
+
+
+
+DELETE
+
+DELETE FROM 테이블명 WHERE절;
+
+
+
+
+
+UPDATE
+
+UPDATE 테이블명 SET (바꿀 칼럼명)=값,(바꿀 칼럼명2)=값2,... WHERE절
+
+
+
+WHERE 절
+
+칼럼명 (operator) 값
+
+비교 연산자(operator)
+= < > <= >= <>(not의 의미)
+각 조건별 연산  AND, OR
+IS NULL
+IS NOT NULL
+
+
+칼럼명 IN(값1,값2,값3..) <<오버로딩 SELECT문도 가능! 
+>> OR의 개념 칼럼이 값1이거나 값2이거나...
+조건에 맞다면 가져옴!  
+
+칼럼명 LIKE 'ⓐ';
+
+LIKE 전용 정규 표현식
+
+% << 문자 0개 이상인 문자열
+
+_ << 문자 1개
+
+EX)
+___S  4자리며 S로 끝나는 문자열 검색
+
+%S% 중간에 S가 들어가는 문자열 검색
+
+
+
+
+
+
+추가 내용
+프로시저:일련의 쿼리를 마치 하나의 함수처럼 실행하기 위한 쿼리의 집합
+PL/SQL 절차형 SQL 언어
+NoSQL: 비관계형 데이터베이스 유형
